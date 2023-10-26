@@ -11,22 +11,22 @@ FROM php:8.2-apache-bookworm as final
 RUN set -x; \
     apt-get update \
     && apt-get install -y --no-install-recommends \
-        git \
-        zlib1g-dev \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        libpng-dev  \
-        libldap2-dev  \
-        libtidy-dev  \
-        libxml2-dev  \
-        fontconfig  \
-        fonts-freefont-ttf   \
-        wget \
-        tar \
-        curl \
-        libzip-dev \
-        unzip \
+    git \
+    zlib1g-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libpng-dev  \
+    libldap2-dev  \
+    libtidy-dev  \
+    libxml2-dev  \
+    fontconfig  \
+    fonts-freefont-ttf   \
+    wget \
+    tar \
+    curl \
+    libzip-dev \
+    unzip \
     && wget -O wkhtmltox.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb \
     && chmod a+x ./wkhtmltox.deb \
     && apt-get install -y ./wkhtmltox.deb \
@@ -65,6 +65,10 @@ RUN set -x; \
 COPY php.ini /usr/local/etc/php/php.ini
 COPY docker-entrypoint.sh /bin/docker-entrypoint.sh
 
+# Add our localhost certificate
+ADD etc/ssl/localhost.crt /etc/ssl/certs/localhost.crt
+ADD etc/ssl/localhost.key /etc/ssl/private/localhost.key
+
 WORKDIR /var/www/bookstack
 
 # www-data
@@ -76,17 +80,18 @@ ENV RUN_APACHE_USER=www-data \
     RUN_APACHE_GROUP=www-data
 
 EXPOSE 8080
+EXPOSE 8443
 
 ENTRYPOINT ["/bin/docker-entrypoint.sh"]
 
 ARG BUILD_DATE
 ARG VCS_REF
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.docker.dockerfile="/Dockerfile" \
-      org.label-schema.license="MIT" \
-      org.label-schema.name="bookstack" \
-      org.label-schema.vendor="solidnerd" \
-      org.label-schema.url="https://github.com/solidnerd/docker-bookstack/" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/solidnerd/docker-bookstack.git" \
-      org.label-schema.vcs-type="Git"
+    org.label-schema.docker.dockerfile="/Dockerfile" \
+    org.label-schema.license="MIT" \
+    org.label-schema.name="bookstack" \
+    org.label-schema.vendor="solidnerd" \
+    org.label-schema.url="https://github.com/solidnerd/docker-bookstack/" \
+    org.label-schema.vcs-ref=$VCS_REF \
+    org.label-schema.vcs-url="https://github.com/solidnerd/docker-bookstack.git" \
+    org.label-schema.vcs-type="Git"
