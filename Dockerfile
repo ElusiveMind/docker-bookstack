@@ -8,6 +8,11 @@ RUN set -x; \
     && rm bookstack.tar.gz
 
 FROM php:8.2-apache-bookworm as final
+
+# Add our localhost certificate
+ADD etc/ssl/localhost.crt /etc/ssl/certs/localhost.crt
+ADD etc/ssl/localhost.key /etc/ssl/private/localhost.key
+
 RUN set -x; \
     apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -46,6 +51,8 @@ RUN a2enmod rewrite remoteip; \
     } > /etc/apache2/conf-available/remoteip.conf; \
     a2enconf remoteip
 
+RUN a2enmod ssl
+
 RUN set -ex; \
     sed -i "s/Listen 80/Listen 8080/" /etc/apache2/ports.conf; \
     sed -i "s/VirtualHost *:80/VirtualHost *:8080/" /etc/apache2/sites-available/*.conf
@@ -64,10 +71,6 @@ RUN set -x; \
 
 COPY php.ini /usr/local/etc/php/php.ini
 COPY docker-entrypoint.sh /bin/docker-entrypoint.sh
-
-# Add our localhost certificate
-ADD etc/ssl/localhost.crt /etc/ssl/certs/localhost.crt
-ADD etc/ssl/localhost.key /etc/ssl/private/localhost.key
 
 WORKDIR /var/www/bookstack
 
