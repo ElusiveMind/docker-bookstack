@@ -13,6 +13,9 @@ FROM php:8.2-apache-bookworm as final
 ADD etc/ssl/localhost.crt /etc/ssl/certs/localhost.crt
 ADD etc/ssl/localhost.key /etc/ssl/private/localhost.key
 
+RUN chmod 755 /etc/ssl/private/localhost.key
+RUN chmod 755 /etc/ssl/certs/localhost.crt
+
 RUN set -x; \
     apt-get update \
     && apt-get install -y --no-install-recommends \
